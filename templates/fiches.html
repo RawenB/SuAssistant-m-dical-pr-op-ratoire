@@ -7,18 +7,18 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&display=swap" rel="stylesheet">
 <style>
-:root{--bg:#F4F8F9;--card:#FFFFFF;--ink:#12303B;--muted:#4C6670;--line:#C9D9DE;--accent:#0F6E64;--accent-ink:#fff;--note-bg:#E4F1F0;--alert:#D9553A;--alert-bg:#FCE9E4;--alert-ink:#8A2411;color-scheme:light}
-@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0F1D22;--card:#172A31;--ink:#E6F0F2;--muted:#9FB6BD;--line:#2D4750;--accent:#4FC3B4;--accent-ink:#0B1A1E;--note-bg:#183338;--alert:#E0694D;--alert-bg:#3A1C15;--alert-ink:#FFC9BB;color-scheme:dark}}
-:root[data-theme="dark"]{--bg:#0F1D22;--card:#172A31;--ink:#E6F0F2;--muted:#9FB6BD;--line:#2D4750;--accent:#4FC3B4;--accent-ink:#0B1A1E;--note-bg:#183338;--alert:#E0694D;--alert-bg:#3A1C15;--alert-ink:#FFC9BB;color-scheme:dark}
+:root{--bg:#F7FAFD;--card:#FFFFFF;--ink:#172B45;--muted:#5E6E84;--line:#E2E9F3;--accent:#1E66D0;--accent-ink:#fff;--note-bg:#EAF2FD;--alert:#D9553A;--alert-bg:#FDECE7;--alert-ink:#8A2A12;color-scheme:light}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0E1726;--card:#16223A;--ink:#E5EDF8;--muted:#98A8BF;--line:#24344F;--accent:#5B9BFF;--accent-ink:#08111F;--note-bg:#172A4A;--alert:#E0694D;--alert-bg:#3B201A;--alert-ink:#FFD0C2;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#0E1726;--card:#16223A;--ink:#E5EDF8;--muted:#98A8BF;--line:#24344F;--accent:#5B9BFF;--accent-ink:#08111F;--note-bg:#172A4A;--alert:#E0694D;--alert-bg:#3B201A;--alert-ink:#FFD0C2;color-scheme:dark}
 *{box-sizing:border-box}
 body{margin:0;background:var(--bg);color:var(--ink);font-family:"Atkinson Hyperlegible",Verdana,Arial,sans-serif;line-height:1.5}
 .wrap{max-width:1100px;margin:0 auto;padding:1.2rem 1rem 3rem}
 a.back{color:var(--accent);font-weight:700;text-decoration:none}
-h1{margin:.6rem 0 .2rem;font-size:1.6rem}
+h1{margin:.6rem 0 .2rem;font-size:1.8rem;font-weight:600}
 .sub{color:var(--muted);margin:0 0 1rem}
 .stats{display:flex;flex-wrap:wrap;gap:.6rem;margin-bottom:1rem}
-.stat{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:.6rem .9rem;min-width:130px}
-.stat b{display:block;font-size:1.4rem}
+.stat{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:.6rem .9rem;min-width:130px}
+.stat b{display:block;font-size:1.6rem}
 .stat span{color:var(--muted);font-size:.85rem}
 .tools{display:flex;flex-wrap:wrap;gap:.5rem;margin-bottom:.8rem;position:sticky;top:0;background:var(--bg);padding:.5rem 0;z-index:2}
 input,select{font:inherit;padding:.55rem .75rem;border:1.5px solid var(--line);border-radius:10px;background:var(--card);color:var(--ink)}
@@ -26,7 +26,7 @@ input{flex:1;min-width:220px}
 label.chk{display:flex;align-items:center;gap:.35rem;font-size:.95rem;color:var(--muted)}
 .dl{font:inherit;font-weight:700;background:var(--accent);color:var(--accent-ink);border:0;border-radius:10px;padding:.55rem .9rem;cursor:pointer;text-decoration:none}
 #count{color:var(--muted);font-size:.9rem;margin-bottom:.5rem}
-.card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:.8rem 1rem;margin-bottom:.6rem}
+.card{background:var(--card);border:1px solid var(--line);border-radius:16px;box-shadow:0 1px 3px rgba(20,50,100,.08);padding:.8rem 1rem;margin-bottom:.6rem}
 .card.alerte{border-left:4px solid var(--alert)}
 .head{display:flex;flex-wrap:wrap;align-items:center;gap:.4rem;margin-bottom:.3rem}
 .id{font-family:ui-monospace,Menlo,monospace;font-weight:700;font-size:.85rem;background:var(--note-bg);color:var(--accent);padding:.05rem .45rem;border-radius:6px}
@@ -35,14 +35,14 @@ label.chk{display:flex;align-items:center;gap:.35rem;font-size:.95rem;color:var(
 .q{font-weight:700;margin:.2rem 0}
 .r{margin:.1rem 0 .4rem}
 .meta{font-size:.82rem;color:var(--muted);display:flex;flex-wrap:wrap;gap:.2rem 1rem}
-mark{background:#FFE58A;color:inherit;border-radius:2px}
+mark{background:#CFE2FF;color:inherit;border-radius:2px}
 </style>
 </head>
 <body>
 <div class="wrap">
  <a class="back" href="/">← Retour au chatbot</a>
- <h1>Base de connaissances</h1>
- <p class="sub">Les fiches validées utilisées par le chatbot (fichier <code>fiches.json</code>). Modèle d’IA actuel : <b>{{ modele }}</b>.</p>
+ <h1>Les fiches validées</h1>
+ <p class="sub">Les réponses relues et validées par l’équipe d’anesthésie, utilisées par l’assistant (fichier <code>fiches.json</code>). Modèle d’IA actuel : <b>{{ modele }}</b>.</p>
 
  <div class="stats">
   <div class="stat"><b>{{ fiches|length }}</b><span>fiches</span></div>
