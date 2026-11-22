@@ -32,7 +32,7 @@ class Index:
         norme = math.sqrt(sum(x * x for x in v.values())) or 1.0
         return {t: x / norme for t, x in v.items()}
 
-    def chercher(self, question, n=3, seuil=0.25):
+    def chercher(self, question, n=3, seuil=0.25, scores=False):
         q = self._vec([t for t in tokens(question) if t in self.idf])
         if not q:
             return []
@@ -45,5 +45,5 @@ class Index:
             if f["reponse"] in vus:
                 continue
             vus.add(f["reponse"])
-            res.append(f)
+            res.append((s, f) if scores else f)
         return res

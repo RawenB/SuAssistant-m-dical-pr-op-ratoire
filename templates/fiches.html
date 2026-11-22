@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Base de connaissances — Assistant préopératoire</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#F4F8F9;--card:#FFFFFF;--ink:#12303B;--muted:#4C6670;--line:#C9D9DE;--accent:#0F6E64;--accent-ink:#fff;--note-bg:#E4F1F0;--alert:#D9553A;--alert-bg:#FCE9E4;--alert-ink:#8A2411;color-scheme:light}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0F1D22;--card:#172A31;--ink:#E6F0F2;--muted:#9FB6BD;--line:#2D4750;--accent:#4FC3B4;--accent-ink:#0B1A1E;--note-bg:#183338;--alert:#E0694D;--alert-bg:#3A1C15;--alert-ink:#FFC9BB;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#0F1D22;--card:#172A31;--ink:#E6F0F2;--muted:#9FB6BD;--line:#2D4750;--accent:#4FC3B4;--accent-ink:#0B1A1E;--note-bg:#183338;--alert:#E0694D;--alert-bg:#3A1C15;--alert-ink:#FFC9BB;color-scheme:dark}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:"Atkinson Hyperlegible",Verdana,Arial,sans-serif;line-height:1.5}
+.wrap{max-width:1100px;margin:0 auto;padding:1.2rem 1rem 3rem}
+a.back{color:var(--accent);font-weight:700;text-decoration:none}
+h1{margin:.6rem 0 .2rem;font-size:1.6rem}
+.sub{color:var(--muted);margin:0 0 1rem}
+.stats{display:flex;flex-wrap:wrap;gap:.6rem;margin-bottom:1rem}
+.stat{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:.6rem .9rem;min-width:130px}
+.stat b{display:block;font-size:1.4rem}
+.stat span{color:var(--muted);font-size:.85rem}
+.tools{display:flex;flex-wrap:wrap;gap:.5rem;margin-bottom:.8rem;position:sticky;top:0;background:var(--bg);padding:.5rem 0;z-index:2}
+input,select{font:inherit;padding:.55rem .75rem;border:1.5px solid var(--line);border-radius:10px;background:var(--card);color:var(--ink)}
+input{flex:1;min-width:220px}
+label.chk{display:flex;align-items:center;gap:.35rem;font-size:.95rem;color:var(--muted)}
+.dl{font:inherit;font-weight:700;background:var(--accent);color:var(--accent-ink);border:0;border-radius:10px;padding:.55rem .9rem;cursor:pointer;text-decoration:none}
+#count{color:var(--muted);font-size:.9rem;margin-bottom:.5rem}
+.card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:.8rem 1rem;margin-bottom:.6rem}
+.card.alerte{border-left:4px solid var(--alert)}
+.head{display:flex;flex-wrap:wrap;align-items:center;gap:.4rem;margin-bottom:.3rem}
+.id{font-family:ui-monospace,Menlo,monospace;font-weight:700;font-size:.85rem;background:var(--note-bg);color:var(--accent);padding:.05rem .45rem;border-radius:6px}
+.tag{font-size:.78rem;padding:.05rem .5rem;border-radius:999px;border:1px solid var(--line);color:var(--muted)}
+.tag.al{background:var(--alert-bg);color:var(--alert-ink);border-color:var(--alert);font-weight:700}
+.q{font-weight:700;margin:.2rem 0}
+.r{margin:.1rem 0 .4rem}
+.meta{font-size:.82rem;color:var(--muted);display:flex;flex-wrap:wrap;gap:.2rem 1rem}
+mark{background:#FFE58A;color:inherit;border-radius:2px}
+</style>
+</head>
+<body>
+<div class="wrap">
+ <a class="back" href="/">← Retour au chatbot</a>
+ <h1>Base de connaissances</h1>
+ <p class="sub">Les fiches validées utilisées par le chatbot (fichier <code>fiches.json</code>). Modèle d’IA actuel : <b>{{ modele }}</b>.</p>
+
+ <div class="stats">
+  <div class="stat"><b>{{ fiches|length }}</b><span>fiches</span></div>
+  <div class="stat"><b>{{ themes|length }}</b><span>thèmes</span></div>
+  <div class="stat"><b>{{ fiches|selectattr("alerte")|list|length }}</b><span>fiches « alerte »</span></div>
+ </div>
+
+ <div class="tools">
+  <input id="s" type="search" placeholder="Rechercher une question, une réponse, un identifiant…" aria-label="Rechercher">
+  <select id="t" aria-label="Thème"><option value="">Tous les thèmes</option>{% for t in themes %}<option>{{ t }}</option>{% endfor %}</select>
+  <label class="chk"><input type="checkbox" id="a" style="min-width:0;flex:none"> Alertes seulement</label>
+  <a class="dl" href="/api/fiches" download="fiches.json">Télécharger (JSON)</a>
+ </div>
+ <div id="count"></div>
+ <div id="list"></div>
+</div>
+<script>
+var FICHES = {{ fiches|tojson }};
+try { var th = localStorage.getItem("preop.theme"); if(th) document.documentElement.dataset.theme = th } catch(e){}
+function esc(s){ return String(s).replace(/[&<>"']/g, function(c){ return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c] }) }
+function fold(s){ return String(s).normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase() }
+function hl(text, q){
+ if(!q) return esc(text);
+ var f = fold(text), i = f.indexOf(q);
+ if(i < 0) return esc(text);
+ return esc(text.slice(0, i)) + "<mark>" + esc(text.slice(i, i + q.length)) + "</mark>" + esc(text.slice(i + q.length));
+}
+function render(){
+ var q = fold(document.getElementById("s").value.trim()), t = document.getElementById("t").value, a = document.getElementById("a").checked;
+ var rows = FICHES.filter(function(f){
+  return (!t || f.theme === t) && (!a || f.alerte) &&
+   (!q || fold(f.id + " " + f.question + " " + f.reponse + " " + f.source).indexOf(q) >= 0);
+ });
+ document.getElementById("count").textContent = rows.length + " fiche" + (rows.length > 1 ? "s" : "") + " affichée" + (rows.length > 1 ? "s" : "");
+ document.getElementById("list").innerHTML = rows.map(function(f){
+  return '<div class="card' + (f.alerte ? " alerte" : "") + '"><div class="head"><span class="id">' + esc(f.id) + '</span><span class="tag">' + esc(f.theme) + '</span>' +
+   (f.alerte ? '<span class="tag al">Alerte : renvoi vers l’équipe</span>' : "") + '</div>' +
+   '<div class="q">' + hl(f.question, q) + '</div><div class="r">' + hl(f.reponse, q) + '</div>' +
+   '<div class="meta"><span>Source : ' + esc(f.source) + '</span><span>Validé par : ' + esc(f.validation) + '</span><span>Renvoi : ' + esc(f.renvoi) + '</span><span>Garde-fou : ' + esc(f.garde_fou) + '</span></div></div>';
+ }).join("");
+}
+["s", "t", "a"].forEach(function(id){ document.getElementById(id).addEventListener("input", render) });
+render();
+</script>
+</body>
+</html>
